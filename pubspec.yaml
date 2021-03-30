@@ -1,0 +1,46 @@
+name: leo_fortune
+description: A new Flutter application.
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^0.1.3
+  toast: ^0.1.5
+  http: ^0.12.1
+  intl: ^0.16.1
+  flutter_slidable: "^0.5.4"
+  font_awesome_flutter: ^8.8.1
+  provider: ^4.1.3
+  flutter_launcher_icons: ^0.7.5
+  flutter_native_splash: ^0.1.9
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+
+  uses-material-design: true
+
+  assets:
+    - assets/image/
+
+flutter_native_splash:
+  image: "assets/image/ic_launcher.png"
+  color: "1C305A"
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/image/ic_launcher.png"
+
+adaptive_icon_background: "#1C305A"
+adaptive_icon_foreground: "assets/image/ic_launcher.png"
