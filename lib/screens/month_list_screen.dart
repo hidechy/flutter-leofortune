@@ -20,6 +20,9 @@ class _MonthListScreenState extends State<MonthListScreen> {
 
   List<Map<dynamic, dynamic>> _uranaiData = List();
 
+  DateTime _prevMonth = DateTime.now();
+  DateTime _nextMonth = DateTime.now();
+
   /**
    * 初期動作
    */
@@ -35,6 +38,13 @@ class _MonthListScreenState extends State<MonthListScreen> {
    */
   void _makeDefaultDisplayData() async {
     await _utility.makeYMDYData(widget.date, 0);
+
+    //----------------------------------//
+    _prevMonth = new DateTime(
+        int.parse(_utility.year), int.parse(_utility.month) - 1, 1);
+    _nextMonth = new DateTime(
+        int.parse(_utility.year), int.parse(_utility.month) + 1, 1);
+    //----------------------------------//
 
     Map data = Map();
 
@@ -77,6 +87,22 @@ class _MonthListScreenState extends State<MonthListScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text('${_utility.year}-${_utility.month}'),
+                    Row(
+                      children: <Widget>[
+                        IconButton(
+                          icon: const Icon(Icons.skip_previous),
+                          tooltip: '前月',
+                          onPressed: () => _goMonthlyListScreen(
+                              context: context, date: _prevMonth.toString()),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.skip_next),
+                          tooltip: '翌月',
+                          onPressed: () => _goMonthlyListScreen(
+                              context: context, date: _nextMonth.toString()),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -160,22 +186,48 @@ class _MonthListScreenState extends State<MonthListScreen> {
           child: Table(
             children: [
               TableRow(children: [
-                Text('${_utility.day}（${_utility.youbiStr}）'),
                 Container(
-                  alignment: Alignment.topRight,
-                  child: Text('${_uranaiData[position]['point_total']}'),
+                  padding: EdgeInsets.all(8),
+                  child: Text('${_utility.day}(${_utility.youbiStr})'),
                 ),
                 Container(
                   alignment: Alignment.topRight,
-                  child: Text('${_uranaiData[position]['point_love']}'),
+                  child: (int.parse(_uranaiData[position]['point_total']) > 70)
+                      ? Container(
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                              color: Colors.yellowAccent.withOpacity(0.3),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20))),
+                          child:
+                              Text('${_uranaiData[position]['point_total']}'),
+                        )
+                      : Container(
+                          padding: EdgeInsets.all(8),
+                          child:
+                              Text('${_uranaiData[position]['point_total']}'),
+                        ),
                 ),
                 Container(
                   alignment: Alignment.topRight,
-                  child: Text('${_uranaiData[position]['point_money']}'),
+                  child: Container(
+                    padding: EdgeInsets.all(8),
+                    child: Text('${_uranaiData[position]['point_love']}'),
+                  ),
                 ),
                 Container(
                   alignment: Alignment.topRight,
-                  child: Text('${_uranaiData[position]['point_work']}'),
+                  child: Container(
+                    padding: EdgeInsets.all(8),
+                    child: Text('${_uranaiData[position]['point_money']}'),
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.all(8),
+                  alignment: Alignment.topRight,
+                  child: Container(
+                    child: Text('${_uranaiData[position]['point_work']}'),
+                  ),
                 ),
               ]),
             ],
@@ -202,6 +254,18 @@ class _MonthListScreenState extends State<MonthListScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => DetailDisplayScreen(date: date),
+      ),
+    );
+  }
+
+  /**
+   *
+   */
+  _goMonthlyListScreen({BuildContext context, String date}) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MonthListScreen(date: date),
       ),
     );
   }
