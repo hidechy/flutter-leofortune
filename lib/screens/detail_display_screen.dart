@@ -22,6 +22,9 @@ class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
 
   final PageController pageController = PageController();
 
+  // ページインデックス
+  int currentPage = 0;
+
   /**
    * 初期動作
    */
@@ -96,6 +99,18 @@ class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
     var ex_date = (widget.date).split('-');
     pageController.jumpToPage(int.parse(ex_date[2]) - 1);
 
+    /////////////////////////////////
+    // ページコントローラのページ遷移を監視しページ数を丸める
+    pageController.addListener(() {
+      int next = pageController.page.round();
+      if (currentPage != next) {
+        setState(() {
+          currentPage = next;
+        });
+      }
+    });
+    /////////////////////////////////
+
     setState(() {});
   }
 
@@ -121,18 +136,29 @@ class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(fit: StackFit.expand, children: <Widget>[
-        _utility.getBackGround(),
-        PageView.builder(
+      body: Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          _utility.getBackGround(),
+          PageView.builder(
             controller: pageController,
             itemCount: _uranaiData.length,
             itemBuilder: (context, index) {
-              return Container(
-                padding: EdgeInsets.all(20),
-                child: dispUranaiDetail(index),
+              //--------------------------------------// リセット
+              bool active = (index == currentPage);
+              if (active == false) {}
+              //--------------------------------------//
+
+              return SingleChildScrollView(
+                child: Container(
+                  padding: EdgeInsets.all(20),
+                  child: dispUranaiDetail(index),
+                ),
               );
-            }),
-      ]),
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -141,6 +167,8 @@ class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
    */
   Column dispUranaiDetail(int index) {
     _utility.makeYMDYData(_uranaiData[index]['date'], 0);
+
+    Size size = MediaQuery.of(context).size;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,7 +179,8 @@ class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
         dispHeadLine(index),
         const Divider(
             color: Colors.indigo, height: 20.0, indent: 20.0, endIndent: 20.0),
-        Expanded(
+        Container(
+          height: size.height * 0.4,
           child: Text(
             '${_uranaiData[index]['total_description']}',
             style: TextStyle(height: lineHeight),
@@ -163,6 +192,9 @@ class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
         const Divider(
             color: Colors.indigo, height: 20.0, indent: 20.0, endIndent: 20.0),
         dispWorkLine(index),
+        const Divider(
+            color: Colors.indigo, height: 20.0, indent: 20.0, endIndent: 20.0),
+        dispLoveLine(index),
       ],
     );
   }
@@ -276,6 +308,38 @@ class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
           SizedBox(height: 10),
           Text(
             '${_uranaiData[index]['work_description']}',
+            style: TextStyle(height: lineHeight),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /**
+   *
+   */
+  Container dispLoveLine(int index) {
+    return Container(
+      height: 180,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Text(
+                '恋愛運',
+                style: TextStyle(fontSize: 18),
+              ),
+              Text(
+                '${_uranaiData[index]['love_point']}',
+                style: TextStyle(fontSize: 18),
+              ),
+            ],
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          ),
+          SizedBox(height: 10),
+          Text(
+            '${_uranaiData[index]['love_description']}',
             style: TextStyle(height: lineHeight),
           ),
         ],

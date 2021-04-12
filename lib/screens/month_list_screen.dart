@@ -183,52 +183,76 @@ class _MonthListScreenState extends State<MonthListScreen> {
       child: ListTile(
         title: DefaultTextStyle(
           style: TextStyle(fontSize: 12),
-          child: Table(
-            children: [
-              TableRow(children: [
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                  child: Text('${_utility.day}（${_utility.youbiStr}）'),
+          child: Row(
+            children: <Widget>[
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: Text('${_utility.day}（${_utility.youbiStr}）'),
+              ),
+              Expanded(
+                child: Column(
+                  children: <Widget>[
+                    Table(
+                      children: [
+                        TableRow(children: [
+                          Container(
+                            alignment: Alignment.topRight,
+                            child: Container(
+                              padding: EdgeInsets.all(8),
+                              child: Text(
+                                  '${_uranaiData[position]['point_total']}'),
+                              //////////////////
+                              decoration: (int.parse(_uranaiData[position]
+                                          ['point_total']) >
+                                      70)
+                                  ? BoxDecoration(
+                                      color:
+                                          Colors.yellowAccent.withOpacity(0.3),
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(20)),
+                                    )
+                                  : null,
+                              //////////////////
+                            ),
+                          ),
+                          Container(
+                            alignment: Alignment.topRight,
+                            child: Container(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: Text(
+                                  '${_uranaiData[position]['point_love']}'),
+                            ),
+                          ),
+                          Container(
+                            alignment: Alignment.topRight,
+                            child: Container(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: Text(
+                                  '${_uranaiData[position]['point_money']}'),
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.symmetric(vertical: 8),
+                            alignment: Alignment.topRight,
+                            child: Container(
+                              child: Text(
+                                  '${_uranaiData[position]['point_work']}'),
+                            ),
+                          ),
+                        ]),
+                      ],
+                    ),
+                    Container(
+                      padding: EdgeInsets.only(
+                        left: 20,
+                        top: 5,
+                      ),
+                      alignment: Alignment.topLeft,
+                      child: Text('${_uranaiData[position]['title_total']}'),
+                    ),
+                  ],
                 ),
-                Container(
-                  alignment: Alignment.topRight,
-                  child: Container(
-                    padding: EdgeInsets.all(8),
-                    child: Text('${_uranaiData[position]['point_total']}'),
-                    //////////////////
-                    decoration:
-                        (int.parse(_uranaiData[position]['point_total']) > 70)
-                            ? BoxDecoration(
-                                color: Colors.yellowAccent.withOpacity(0.3),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(20)),
-                              )
-                            : null,
-                    //////////////////
-                  ),
-                ),
-                Container(
-                  alignment: Alignment.topRight,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 8),
-                    child: Text('${_uranaiData[position]['point_love']}'),
-                  ),
-                ),
-                Container(
-                  alignment: Alignment.topRight,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 8),
-                    child: Text('${_uranaiData[position]['point_money']}'),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                  alignment: Alignment.topRight,
-                  child: Container(
-                    child: Text('${_uranaiData[position]['point_work']}'),
-                  ),
-                ),
-              ]),
+              ),
             ],
           ),
         ),
