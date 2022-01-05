@@ -18,14 +18,12 @@ class MonthListScreen extends StatefulWidget {
 class _MonthListScreenState extends State<MonthListScreen> {
   Utility _utility = Utility();
 
-  List<Map<dynamic, dynamic>> _uranaiData = List();
+  List<Map<dynamic, dynamic>> _uranaiData = [];
 
   DateTime _prevMonth = DateTime.now();
   DateTime _nextMonth = DateTime.now();
 
-  /**
-   * 初期動作
-   */
+  /// 初期動作
   @override
   void initState() {
     super.initState();
@@ -33,11 +31,9 @@ class _MonthListScreenState extends State<MonthListScreen> {
     _makeDefaultDisplayData();
   }
 
-  /**
-   * 初期データ作成
-   */
+  /// 初期データ作成
   void _makeDefaultDisplayData() async {
-    await _utility.makeYMDYData(widget.date, 0);
+    _utility.makeYMDYData(widget.date, 0);
 
     //----------------------------------//
     _prevMonth = new DateTime(
@@ -67,9 +63,7 @@ class _MonthListScreenState extends State<MonthListScreen> {
     setState(() {});
   }
 
-  /**
-   *
-   */
+  ///
   @override
   Widget build(BuildContext context) {
     _utility.makeYMDYData(widget.date, 0);
@@ -93,13 +87,17 @@ class _MonthListScreenState extends State<MonthListScreen> {
                           icon: const Icon(Icons.skip_previous),
                           tooltip: '前月',
                           onPressed: () => _goMonthlyListScreen(
-                              context: context, date: _prevMonth.toString()),
+                            context: context,
+                            date: _prevMonth.toString(),
+                          ),
                         ),
                         IconButton(
                           icon: const Icon(Icons.skip_next),
                           tooltip: '翌月',
                           onPressed: () => _goMonthlyListScreen(
-                              context: context, date: _nextMonth.toString()),
+                            context: context,
+                            date: _nextMonth.toString(),
+                          ),
                         ),
                       ],
                     ),
@@ -125,9 +123,7 @@ class _MonthListScreenState extends State<MonthListScreen> {
     );
   }
 
-  /**
-   *
-   */
+  ///
   Container dispHeaderLine() {
     return Container(
       padding: EdgeInsets.only(right: 50),
@@ -141,15 +137,15 @@ class _MonthListScreenState extends State<MonthListScreen> {
             ),
             Container(
               alignment: Alignment.topRight,
-              child: Text('Love'),
-            ),
-            Container(
-              alignment: Alignment.topRight,
               child: Text('Money'),
             ),
             Container(
               alignment: Alignment.topRight,
               child: Text('Work'),
+            ),
+            Container(
+              alignment: Alignment.topRight,
+              child: Text('Love'),
             ),
           ]),
         ],
@@ -157,9 +153,7 @@ class _MonthListScreenState extends State<MonthListScreen> {
     );
   }
 
-  /**
-   * リスト表示
-   */
+  /// リスト表示
   Widget _uranaiList() {
     return ListView.builder(
       itemCount: _uranaiData.length,
@@ -167,9 +161,7 @@ class _MonthListScreenState extends State<MonthListScreen> {
     );
   }
 
-  /**
-   * リストアイテム表示
-   */
+  /// リストアイテム表示
   Widget _listItem({int position}) {
     _utility.makeYMDYData(_uranaiData[position]['date'], 0);
 
@@ -187,59 +179,68 @@ class _MonthListScreenState extends State<MonthListScreen> {
             children: <Widget>[
               Container(
                 padding: EdgeInsets.symmetric(vertical: 8),
-                child: Text('${_utility.day}（${_utility.youbiStr}）'),
+                child: Text(
+                  '${_utility.day}（${_utility.youbiStr}）',
+                ),
               ),
               Expanded(
                 child: Column(
                   children: <Widget>[
                     Table(
                       children: [
-                        TableRow(children: [
-                          Container(
-                            alignment: Alignment.topRight,
-                            child: Container(
-                              padding: EdgeInsets.all(8),
-                              child: Text(
-                                  '${_uranaiData[position]['point_total']}'),
-                              //////////////////
-                              decoration: (int.parse(_uranaiData[position]
-                                          ['point_total']) >
-                                      70)
-                                  ? BoxDecoration(
-                                      color:
-                                          Colors.yellowAccent.withOpacity(0.3),
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(20)),
-                                    )
-                                  : null,
-                              //////////////////
+                        TableRow(
+                          children: [
+                            Container(
+                              alignment: Alignment.topRight,
+                              child: Container(
+                                padding: EdgeInsets.all(8),
+                                child: Text(
+                                  '${_uranaiData[position]['point_total']}',
+                                ),
+                                //////////////////
+                                decoration: (int.parse(_uranaiData[position]
+                                            ['point_total']) >
+                                        70)
+                                    ? BoxDecoration(
+                                        color: Colors.yellowAccent
+                                            .withOpacity(0.3),
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(20),
+                                        ),
+                                      )
+                                    : null,
+                                //////////////////
+                              ),
                             ),
-                          ),
-                          Container(
-                            alignment: Alignment.topRight,
-                            child: Container(
+                            Container(
+                              alignment: Alignment.topRight,
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 8),
+                                child: Text(
+                                  '${_uranaiData[position]['point_money']}',
+                                ),
+                              ),
+                            ),
+                            Container(
                               padding: EdgeInsets.symmetric(vertical: 8),
-                              child: Text(
-                                  '${_uranaiData[position]['point_love']}'),
+                              alignment: Alignment.topRight,
+                              child: Container(
+                                child: Text(
+                                  '${_uranaiData[position]['point_work']}',
+                                ),
+                              ),
                             ),
-                          ),
-                          Container(
-                            alignment: Alignment.topRight,
-                            child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 8),
-                              child: Text(
-                                  '${_uranaiData[position]['point_money']}'),
+                            Container(
+                              alignment: Alignment.topRight,
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 8),
+                                child: Text(
+                                  '${_uranaiData[position]['point_love']}',
+                                ),
+                              ),
                             ),
-                          ),
-                          Container(
-                            padding: EdgeInsets.symmetric(vertical: 8),
-                            alignment: Alignment.topRight,
-                            child: Container(
-                              child: Text(
-                                  '${_uranaiData[position]['point_work']}'),
-                            ),
-                          ),
-                        ]),
+                          ],
+                        ),
                       ],
                     ),
                     Container(
@@ -248,7 +249,9 @@ class _MonthListScreenState extends State<MonthListScreen> {
                         top: 5,
                       ),
                       alignment: Alignment.topLeft,
-                      child: Text('${_uranaiData[position]['title_total']}'),
+                      child: Text(
+                        '${_uranaiData[position]['title_total']}',
+                      ),
                     ),
                   ],
                 ),
@@ -257,8 +260,9 @@ class _MonthListScreenState extends State<MonthListScreen> {
           ),
         ),
         trailing: GestureDetector(
-          onTap: () =>
-              _goDetailDisplayScreen(date: '${_uranaiData[position]['date']}'),
+          onTap: () => _goDetailDisplayScreen(
+            date: '${_uranaiData[position]['date']}',
+          ),
           child: Icon(
             Icons.call_made,
             color: Colors.greenAccent,
@@ -269,9 +273,7 @@ class _MonthListScreenState extends State<MonthListScreen> {
     );
   }
 
-  /**
-   *
-   */
+  ///
   _goDetailDisplayScreen({date}) {
     Navigator.push(
       context,
@@ -281,9 +283,7 @@ class _MonthListScreenState extends State<MonthListScreen> {
     );
   }
 
-  /**
-   *
-   */
+  ///
   _goMonthlyListScreen({BuildContext context, String date}) {
     Navigator.pushReplacement(
       context,

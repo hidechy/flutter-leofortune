@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
+
+import 'dart:convert';
+
+import '../models/uranai.dart';
 
 import '../utilities/utility.dart';
 
-import 'dart:convert';
-import 'package:http/http.dart';
-
 class DetailDisplayScreen extends StatefulWidget {
   final String date;
-  DetailDisplayScreen({@required this.date});
 
+  const DetailDisplayScreen({Key key, this.date}) : super(key: key);
+
+  ///
   @override
   _DetailDisplayScreenState createState() => _DetailDisplayScreenState();
 }
@@ -16,18 +20,15 @@ class DetailDisplayScreen extends StatefulWidget {
 class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
   Utility _utility = Utility();
 
-  List<Map<dynamic, dynamic>> _uranaiData = List();
-
-  double lineHeight = 1.6;
+  List _uranaiData = [];
 
   final PageController pageController = PageController();
 
-  // ページインデックス
   int currentPage = 0;
 
-  /**
-   * 初期動作
-   */
+  double lineHeight = 1.6;
+
+  /// 初期動作
   @override
   void initState() {
     super.initState();
@@ -35,69 +36,21 @@ class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
     _makeDefaultDisplayData();
   }
 
-  /**
-   * 初期データ作成
-   */
+  /// 初期データ作成
   void _makeDefaultDisplayData() async {
-    await _utility.makeYMDYData(widget.date, 0);
-
-    Map data = Map();
-
-    String url = "http://toyohide.work/BrainLog/api/monthlyuranai";
+    //-------------------------------------------//
+    String url = "http://toyohide.work/BrainLog/api/getMonthlyUranaiData";
     Map<String, String> headers = {'content-type': 'application/json'};
-    String body = json
-        .encode({"date": '${_utility.year}-${_utility.month}-${_utility.day}'});
-    Response response = await post(url, headers: headers, body: body);
-
-    if (response != null) {
-      if (response.body != 0) {
-        ////////////////////////////////
-        Map data2 = Map();
-
-        String url2 = "http://toyohide.work/BrainLog/api/monthlyuranaidetail";
-        Map<String, String> headers2 = {'content-type': 'application/json'};
-        String body2 = json.encode(
-            {"date": '${_utility.year}-${_utility.month}-${_utility.day}'});
-        Response response2 = await post(url2, headers: headers2, body: body2);
-
-        if (response2 != null) {
-          if (response2.body != 0) {
-            data2 = jsonDecode(response2.body);
-          }
-        }
-        ////////////////////////////////
-
-        data = jsonDecode(response.body);
-
-        for (var i = 0; i < data['data'].length; i++) {
-          Map _map = Map();
-
-          _map['date'] = data['data'][i]['date'];
-
-          var dailyRecord = _getDailyRecord(
-              date: data['data'][i]['date'], detail: data2['data']);
-
-          _map['total_title'] = dailyRecord['total']['title'];
-          _map['total_description'] = dailyRecord['total']['description'];
-          _map['total_point'] = dailyRecord['total']['point'];
-
-          _map['love_description'] = dailyRecord['love']['description'];
-          _map['love_point'] = dailyRecord['love']['point'];
-
-          _map['money_description'] = dailyRecord['money']['description'];
-          _map['money_point'] = dailyRecord['money']['point'];
-
-          _map['work_description'] = dailyRecord['work']['description'];
-          _map['work_point'] = dailyRecord['work']['point'];
-
-          _uranaiData.add(_map);
-        }
-      }
-    }
+    String body = json.encode({"date": widget.date});
+    Response response =
+        await post(Uri.parse(url), headers: headers, body: body);
+    final uranai = uranaiFromJson(response.body);
+    _uranaiData = uranai.data;
+    //-------------------------------------------//
 
     //
-    var ex_date = (widget.date).split('-');
-    pageController.jumpToPage(int.parse(ex_date[2]) - 1);
+    var exDate = (widget.date).split('-');
+    pageController.jumpToPage(int.parse(exDate[2]) - 1);
 
     /////////////////////////////////
     // ページコントローラのページ遷移を監視しページ数を丸める
@@ -114,25 +67,7 @@ class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
     setState(() {});
   }
 
-  /**
-   *
-   */
-  Map _getDailyRecord({date, detail}) {
-    Map _map = Map();
-
-    for (var i = 0; i < detail.length; i++) {
-      if (detail[i]['date'] == date) {
-        _map = detail[i];
-        break;
-      }
-    }
-
-    return _map;
-  }
-
-  /**
-   *
-   */
+  ///
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -144,11 +79,6 @@ class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
             controller: pageController,
             itemCount: _uranaiData.length,
             itemBuilder: (context, index) {
-              //--------------------------------------// リセット
-              bool active = (index == currentPage);
-              if (active == false) {}
-              //--------------------------------------//
-
               return SingleChildScrollView(
                 child: Container(
                   padding: EdgeInsets.all(20),
@@ -162,11 +92,9 @@ class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
     );
   }
 
-  /**
-   *
-   */
+  ///
   Column dispUranaiDetail(int index) {
-    _utility.makeYMDYData(_uranaiData[index]['date'], 0);
+    _utility.makeYMDYData(_uranaiData[index].date.toString(), 0);
 
     Size size = MediaQuery.of(context).size;
 
@@ -182,7 +110,7 @@ class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
         Container(
           height: size.height * 0.4,
           child: Text(
-            '${_uranaiData[index]['total_description']}',
+            '${_uranaiData[index].totalDescription}',
             style: TextStyle(height: lineHeight),
           ),
         ),
@@ -195,13 +123,14 @@ class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
         const Divider(
             color: Colors.indigo, height: 20.0, indent: 20.0, endIndent: 20.0),
         dispLoveLine(index),
+        const Divider(
+            color: Colors.indigo, height: 20.0, indent: 20.0, endIndent: 20.0),
+        dispSachikoiLine(index),
       ],
     );
   }
 
-  /**
-   *
-   */
+  ///
   Row dispYearMonthLine() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -221,12 +150,8 @@ class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
     );
   }
 
-  /**
-   *
-   */
+  ///
   Row dispHeadLine(int index) {
-    _utility.makeYMDYData(_uranaiData[index]['date'], 0);
-
     return Row(
       children: <Widget>[
         Container(
@@ -238,12 +163,12 @@ class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
         Expanded(
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Text('${_uranaiData[index]['total_title']}'),
+            child: Text('${_uranaiData[index].totalTitle}'),
           ),
         ),
         Container(
           child: Text(
-            '${_uranaiData[index]['total_point']}',
+            '${_uranaiData[index].totalPoint}',
             style: TextStyle(fontSize: 26),
           ),
         ),
@@ -251,9 +176,7 @@ class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
     );
   }
 
-  /**
-   *
-   */
+  ///
   Container dispMoneyLine(int index) {
     return Container(
       height: 120,
@@ -267,7 +190,7 @@ class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
                 style: TextStyle(fontSize: 18),
               ),
               Text(
-                '${_uranaiData[index]['money_point']}',
+                '${_uranaiData[index].moneyPoint}',
                 style: TextStyle(fontSize: 18),
               ),
             ],
@@ -275,7 +198,7 @@ class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
           ),
           SizedBox(height: 10),
           Text(
-            '${_uranaiData[index]['money_description']}',
+            '${_uranaiData[index].moneyDescription}',
             style: TextStyle(height: lineHeight),
           ),
         ],
@@ -283,9 +206,7 @@ class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
     );
   }
 
-  /**
-   *
-   */
+  ///
   Container dispWorkLine(int index) {
     return Container(
       height: 120,
@@ -299,7 +220,7 @@ class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
                 style: TextStyle(fontSize: 18),
               ),
               Text(
-                '${_uranaiData[index]['work_point']}',
+                '${_uranaiData[index].workPoint}',
                 style: TextStyle(fontSize: 18),
               ),
             ],
@@ -307,7 +228,7 @@ class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
           ),
           SizedBox(height: 10),
           Text(
-            '${_uranaiData[index]['work_description']}',
+            '${_uranaiData[index].workDescription}',
             style: TextStyle(height: lineHeight),
           ),
         ],
@@ -315,9 +236,7 @@ class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
     );
   }
 
-  /**
-   *
-   */
+  ///
   Container dispLoveLine(int index) {
     return Container(
       height: 180,
@@ -331,7 +250,7 @@ class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
                 style: TextStyle(fontSize: 18),
               ),
               Text(
-                '${_uranaiData[index]['love_point']}',
+                '${_uranaiData[index].lovePoint}',
                 style: TextStyle(fontSize: 18),
               ),
             ],
@@ -339,11 +258,68 @@ class _DetailDisplayScreenState extends State<DetailDisplayScreen> {
           ),
           SizedBox(height: 10),
           Text(
-            '${_uranaiData[index]['love_description']}',
+            '${_uranaiData[index].loveDescription}',
             style: TextStyle(height: lineHeight),
           ),
         ],
       ),
+    );
+  }
+
+  ///
+  Widget dispSachikoiLine(int index) {
+    _utility.makeYMDYData(_uranaiData[index].date.toString(), 0);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        const Divider(
+            color: Colors.indigo, height: 20.0, indent: 20.0, endIndent: 20.0),
+        Container(
+          margin: EdgeInsets.symmetric(vertical: 5),
+          padding: EdgeInsets.all(3),
+          color: Colors.pinkAccent.withOpacity(0.3),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text(
+                'さちこい（${_utility.year}-${_utility.month}-${_utility.day}の運勢）',
+              ),
+              Text('${_uranaiData[index].sachikoiRank}位')
+            ],
+          ),
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(vertical: 5),
+          child: Text('金運'),
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(vertical: 5),
+          child: Text('${_uranaiData[index].sachikoiMoney}'),
+        ),
+        Container(
+          child: Text('仕事運'),
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(vertical: 5),
+          child: Text('${_uranaiData[index].sachikoiWork}'),
+        ),
+        Container(
+          child: Text('対人運'),
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(vertical: 5),
+          child: Text('${_uranaiData[index].sachikoiMan}'),
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(vertical: 5),
+          child: Text('恋愛運'),
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(vertical: 5),
+          child: Text('${_uranaiData[index].sachikoiLove}'),
+        ),
+      ],
     );
   }
 }

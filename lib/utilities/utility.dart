@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class Utility {
-  /**
-   * 背景取得
-   */
+  /// 背景取得
   Widget getBackGround() {
     return Image.asset(
       'assets/image/bg.png',
@@ -14,9 +12,7 @@ class Utility {
     );
   }
 
-  /**
-   * 日付データ作成
-   */
+  /// 日付データ作成
   String year;
   String month;
   String day;
@@ -72,21 +68,17 @@ class Utility {
     }
   }
 
-  /**
-   * 月末日取得
-   */
+  /// 月末日取得
   String monthEndDateTime;
   void makeMonthEnd(int year, int month, int day) {
     monthEndDateTime = new DateTime(year, month, day).toString();
   }
 
-  /**
-   * 背景色取得
-   */
+  /// 背景色取得
   getBgColor(String date) {
     makeYMDYData(date, 0);
 
-    Color _color = null;
+    Color _color;
 
     switch (youbiNo) {
       case 0:
